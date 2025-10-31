@@ -1,5 +1,4 @@
 import requests
-from app.database import SessionLocal
 from app.models import ExcludedIP
 
 url = "https://check.torproject.org/torbulkexitlist"

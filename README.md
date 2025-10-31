@@ -105,3 +105,34 @@ Este método é ideal para simular um ambiente de produção ou para garantir qu
     * **Docs (Swagger):** [http://localhost:8080/docs](http://localhost:8080/docs)
 
 ---
+
+
+
+------
+
+## 📄 Guia de Implementação: Deploy de Contêiner FastAPI em AWS EC2
+
+Este documento descreve as etapas mínimas para o deployment de uma API em contêiner Docker (Python 3.9 Slim) em uma instância Amazon EC2.
+
+### 1. Provisionamento da Infraestrutura (Console AWS)
+
+Esta fase consiste em lançar a máquina virtual e configurar a conectividade básica:
+
+| Ação | Detalhe |
+| :--- | :--- |
+| **Lançamento da Instância** | **Serviço:** EC2 (Launch Instances).<br>**AMI:** Amazon Linux 2023 ou Ubuntu LTS.<br>**Tipo:** `t2.micro` (ou `t3.micro`).<br>**Key Pair:** Criação/Seleção da chave `.pem` (necessária para acesso SSH). |
+| **Configuração de Rede** | **Security Group (SG):** Criar um novo SG (obrigatório pela AWS). |
+| **Permissões de Entrada** | **Porta 22 (SSH):** Origem *My IP* (ou bloco de rede específico).<br>**Porta 8000 (API):** Protocolo TCP. Origem **`0.0.0.0/0`** (Acesso público para testes). |
+| **Finalização** | Obter o **IP Público** da instância após o status mudar para `Running`. |
+
+### 2. Configuração do Servidor e Docker (Acesso via SSH)
+
+Nesta fase, o software necessário para rodar o contêiner é instalado na instância EC2.
+
+#### 2.1 Acesso Remoto
+
+Conectar à instância usando a chave `.pem`:
+
+```bash
+# Exemplo de conexão (ajuste o usuário conforme a AMI)
+ssh -i /caminho/para/chave.pem ec2-user@<IP_PÚBLICO_EC2>
