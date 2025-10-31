@@ -10,7 +10,6 @@ A API busca a lista atual de IPs de saída do TOR, permite ao usuário adicionar
 * **Listar IPs do TOR [🔒]:** Busca e retorna a lista completa de IPs de saída da rede TOR (requer autenticação).
 * **Excluir IP [🔒]:** Adiciona um IP a uma "lista de exclusão" no banco de dados (requer autenticação).
 * **Listar IPs Filtrados [🔒]:** Retorna a lista de IPs do TOR subtraindo os IPs da lista de exclusão (requer autenticação).
-* **Cache:** A lista de IPs do TOR é cacheadada no banco de dados, sendo atualizada apenas quando o cache expira, para melhorar a performance.
 * **Documentação Automática:** Fornece documentação interativa (Swagger UI e ReDoc) automaticamente.
 
 ## 🛠️ Endpoints da API
@@ -66,7 +65,7 @@ Este método é ideal para desenvolvimento e testes rápidos.
 4.  **Execute o servidor:**
     O comando `uvicorn` irá iniciar o servidor. O `main.py` está dentro da pasta `app/`, então usamos `app.main:app`.
     ```bash
-    uvicorn app.main:app --reload
+    uvicorn app.main:app --port 8080
     ```
 
 5.  **Acesse a API:**
