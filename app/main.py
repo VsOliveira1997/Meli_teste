@@ -4,7 +4,6 @@ from app.services import fetch_tor_ips, get_filtered_ips
 from app.database import engine, SessionDep
 from app import models, schemas
 from app.users.routers import users_router, verify_token
-
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(

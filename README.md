@@ -1,23 +1,29 @@
-# 🚀 API de Filtro de IPs da Rede TOR
+# 🚀 API de Filtro de IPs da Rede TOR (Protegida por JWT)
 
-Este projeto é uma API simples construída com FastAPI que gerencia e filtra endereços IP da rede TOR.
+Este projeto é uma API simples construída com FastAPI que gerencia e filtra endereços IP da rede TOR, utilizando **JSON Web Tokens (JWT)** para autenticação e proteção de rotas.
 
-A API busca a lista atual de IPs de saída do TOR, permite ao usuário adicionar IPs específicos a uma lista de exclusão (que é persistida em um banco de dados) e, por fim, oferece um endpoint que retorna a lista de IPs do TOR *exceto* aqueles que foram excluídos.
+A API busca a lista atual de IPs de saída do TOR, permite ao usuário adicionar IPs específicos a uma lista de exclusão (persistida em um banco de dados) e, por fim, oferece um endpoint que retorna a lista de IPs do TOR *exceto* aqueles que foram excluídos.
 
 ## 🌟 Funcionalidades
 
-* **Listar IPs do TOR:** Busca e retorna a lista completa de IPs de saída da rede TOR.
-* **Excluir IP:** Adiciona um IP a uma "lista de exclusão" no banco de dados.
-* **Listar IPs Filtrados:** Retorna a lista de IPs do TOR subtraindo os IPs da lista de exclusão.
+* **Autenticação JWT:** Implementação completa de registro (`signup`) e login para proteger os endpoints principais.
+* **Listar IPs do TOR [🔒]:** Busca e retorna a lista completa de IPs de saída da rede TOR (requer autenticação).
+* **Excluir IP [🔒]:** Adiciona um IP a uma "lista de exclusão" no banco de dados (requer autenticação).
+* **Listar IPs Filtrados [🔒]:** Retorna a lista de IPs do TOR subtraindo os IPs da lista de exclusão (requer autenticação).
+* **Cache:** A lista de IPs do TOR é cacheadada no banco de dados, sendo atualizada apenas quando o cache expira, para melhorar a performance.
 * **Documentação Automática:** Fornece documentação interativa (Swagger UI e ReDoc) automaticamente.
 
 ## 🛠️ Endpoints da API
 
-* `GET /tor-ips`: Retorna a lista completa de IPs de saída do TOR.
-* `POST /exclude-ip`: Adiciona um IP à lista de exclusão.
-* `GET /filtered-tor-ips`: Retorna a lista de IPs do TOR, exceto aqueles na lista de exclusão.
-* `GET /docs`: Acesso à documentação interativa (Swagger UI).
-* `GET /redoc`: Acesso à documentação (ReDoc).
+| Método | Rota | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/user/signup` | **Registra** um novo usuário no sistema. |
+| `POST` | `/user/login` | **Autentica** o usuário e retorna o **Token JWT**. |
+| `GET` | `/tor-ips` | **[🔒] Requer JWT.** Retorna a lista completa de IPs de saída do TOR (ou do cache). |
+| `POST` | `/exclude-ip` | **[🔒] Requer JWT.** Adiciona um IP à lista de exclusão do banco de dados. |
+| `GET` | `/filtered-tor-ips` | **[🔒] Requer JWT.** Retorna os IPs do TOR subtraindo a lista de exclusão. |
+| `GET` | `/docs` | Acesso à documentação interativa (Swagger UI). |
+| `GET` | `/redoc` | Acesso à documentação (ReDoc). |
 
 ---
 
@@ -49,15 +55,10 @@ Este método é ideal para desenvolvimento e testes rápidos.
 
     # Ativar no Linux/macOS
     source venv/bin/activate
-
-    # Ativar no Windows (PowerShell)
-    .\\venv\\Scripts\\Activate.ps1
-    # Ou no Windows (CMD)
-    .\\venv\\Scripts\\activate.bat
     ```
 
 3.  **Instale as dependências:**
-    (Assumindo que você tem um `requirements.txt` com `fastapi`, `uvicorn`, `sqlalchemy`, etc.)
+    (Assumindo que você tem um `requirements.txt` com `fastapi`, `uvicorn`, `sqlalchemy`, `pyjwt`, `passlib`, etc.)
     ```bash
     pip install -r requirements.txt
     ```
@@ -69,8 +70,8 @@ Este método é ideal para desenvolvimento e testes rápidos.
     ```
 
 5.  **Acesse a API:**
-    * **Aplicação:** [http://127.0.0.1:8000](http://127.0.0.1:8000)
     * **Docs (Swagger):** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+    * **Teste a autenticação:** Use `/user/signup` para criar um usuário e `/user/login` para obter o Token JWT.
 
 ---
 
@@ -86,33 +87,23 @@ Este método é ideal para simular um ambiente de produção ou para garantir qu
 1.  **Construa a imagem Docker:**
     No diretório raiz do projeto (onde está o `Dockerfile`), execute:
     ```bash
-    # "tor-filter-api" é um nome sugerido para a imagem. O "." indica o contexto atual.
+    # "tor-filter-api" é um nome sugerido para a imagem.
     docker build -t tor-filter-api .
     ```
 
 2.  **Execute o contêiner:**
     Isso irá iniciar um contêiner a partir da imagem que acabamos de construir.
     ```bash
-    # -d: Roda em modo "detached" (em segundo plano)
-    # -p 8080:8080: Mapeia a porta 8080 da sua máquina para a porta 8080 do contêiner
-    # --name tor-api: Dá um nome fácil ao contêiner
-    docker run -d -p 8080:8080 --name tor-api tor-filter-api
+    # Mapeia a porta 8080 da sua máquina para a porta 8000 do contêiner (porta padrão do Gunicorn/Uvicorn)
+    docker run -d -p 8080:8000 --name tor-api tor-filter-api
     ```
 
 3.  **Acesse a API:**
-    Como o `Dockerfile` expõe a porta `8080`, a aplicação estará disponíveis em:
-    * **Aplicação:** [http://localhost:8080](http://localhost:8080)
     * **Docs (Swagger):** [http://localhost:8080/docs](http://localhost:8080/docs)
 
 ---
 
-
-
-------
-
-## 📄 Guia de Implementação: Deploy de Contêiner FastAPI em AWS EC2
-
-Este documento descreve as etapas mínimas para o deployment de uma API em contêiner Docker (Python 3.9 Slim) em uma instância Amazon EC2.
+## 📄 Implementação em AWS EC2
 
 ### 1. Provisionamento da Infraestrutura (Console AWS)
 
