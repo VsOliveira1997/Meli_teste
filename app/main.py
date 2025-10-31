@@ -27,8 +27,10 @@ def exclude_ip(ip: schemas.ExcludeIP, session: SessionDep, user_info: dict = Dep
     """
     Adiciona um endereço IP à lista de exclusão.
     """
+
+    ip_to_save = str(ip.ip)
     try:
-        db_ip = models.ExcludedIP(ip=ip.ip)
+        db_ip = models.ExcludedIP(ip=ip_to_save)
         session.add(db_ip)
         session.commit()
         session.refresh(db_ip)
